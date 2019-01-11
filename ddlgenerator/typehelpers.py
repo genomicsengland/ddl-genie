@@ -93,9 +93,11 @@ def coerce_to_specific(datum):
         return result
     except Exception as e:
         pass
-    if str(datum).strip().lower() in ('0', 'false', 'f', 'n', 'no'):
+    #if str(datum).strip().lower() in ('0', 'false', 'f', 'n', 'no'):
+    if str(datum).strip().lower() in ('false', 'f', 'n', 'no'):
         return False
-    elif str(datum).strip().lower() in ('1', 'true', 't', 'y', 'yes'):
+    #elif str(datum).strip().lower() in ('1', 'true', 't', 'y', 'yes'):
+    elif str(datum).strip().lower() in ('true', 't', 'y', 'yes'):
         return True
     try:
         return int(str(datum))

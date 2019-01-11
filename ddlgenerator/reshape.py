@@ -9,10 +9,11 @@ import copy
 from pprint import pprint
 from ddlgenerator.reserved import sql_reserved_words
 import re
-try:
-    import ddlgenerator.typehelpers as th
-except ImportError:
-    import typehelpers as th # TODO: can py2/3 split this
+#try:
+#    import ddlgenerator.typehelpers as th
+#except ImportError:
+#    import typehelpers as th # TODO: can py2/3 split this
+import ddlgenerator.typehelpers as th # TODO: can py2/3 split this
 
 _illegal_in_column_name = re.compile(r'[^a-zA-Z0-9_$#]')
 def clean_key_name(key):

@@ -52,24 +52,23 @@ try:
 except ImportError:
     pymongo = None
 from data_dispenser.sources import Source
-try:
-    import ddlgenerator.typehelpers as th
-    from ddlgenerator import reshape
-except ImportError:
-    import typehelpers as th  # TODO: can py2/3 split this
-    import reshape
+#try:
+#    import ddlgenerator.typehelpers as th
+#    from ddlgenerator import reshape
+#except ImportError:
+#    import typehelpers as th  # TODO: can py2/3 split this
+#    import reshape
+import ddlgenerator.typehelpers as th  # TODO: can py2/3 split this
+import ddlgenerator.reshape as reshape
 
-logging.basicConfig(filename='ddlgenerator.log', filemode='w')
+#logging.basicConfig(filename=tablename + '.log', filemode='w')
 metadata = sa.MetaData()
 
 
 class KeyAlreadyExists(KeyError):
     pass
 
-
-dialect_names = '''drizzle firebird mssql mysql oracle postgresql
-                   sqlite sybase sqlalchemy django'''.split()
-
+dialect_names = '''drizzle firebird mssql mysql oracle postgresql sqlite sybase sqlalchemy django'''.split() 
 def _dump(sql, *multiparams, **params):
     pass
 
