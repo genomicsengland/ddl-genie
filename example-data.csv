@@ -1,6 +1,6 @@
 ﻿person_id,age,date_of_consent,height,surname,procedure_id
 1,23,2017-01-01,156.1,Lennon,3
-2,24,2016-11-12,175.2,McCartney,3
+2,24,2016-11-12,175.2,"McCartney, Sir",3
 3,65,2016-03-02,168.4,Starr,4
 4,54,2017-10-25,156.8,Harrison,7
 5,,2015-11-12,165.8,Thompson,1
