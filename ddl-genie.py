@@ -1,8 +1,21 @@
+"""
+Given a data file in tabular format, automatically guess-generates a matching DDL.
+
+e.g. python3 ddl-genie.py indata.csv -d , -t cohort_data -i
+
+Will output the DDL to console (or specified output file) with/without insert statements
+
+Supports various sql dialects (determined by what sqlalchemy can support)
+
+Wrapper for ddlgenerator module (with minor alteration) https://github.com/catherinedevlin/ddl-generator
+
+"""
 import csv
 import argparse
 import os
 from ddlgenerator.ddlgenerator import Table
 import logging
+import random
 
 # Parse arguments
 parser = argparse.ArgumentParser()
@@ -14,6 +27,8 @@ parser.add_argument('-o', '--outputfile', help = "filename for output file")
 parser.add_argument('-l', '--dialect', default = 'postgresql', help = "database dialect to be used")
 parser.add_argument('-t', '--tablename', help = "name of the table to generate")
 parser.add_argument('-g', '--logfile', help = "name of log file to write to")
+parser.add_argument('-r', '--maxrows', help = "maximum number of (random) rows to use for ddl generation")
+#parser.add_argument('-k', '--primarykey', help = "column to make primary key")
 args = parser.parse_args()
 
 # assign some variables
@@ -30,18 +45,53 @@ except Exception as err:
 # set up logging from ddlgenerator to a specific file
 logging.basicConfig(filename=args.logfile, filemode = 'w')
 
-# read in data within file
-with open(args.inputFile) as csvfile:
-    ls = []
-    filereader = csv.DictReader(csvfile, delimiter = args.delim, quotechar = args.quotechar)
-    for row in filereader:
-        ls.append(row)
+# function to get random sample (of length k) from the file
+def randomsampler(filename, k, d, q):
+    sample = []
+    with open(filename, 'rU') as f:
+        # get number of lines (excluding header)
+        linecount = sum(1 for line in f) - 1
+        k = min(k, linecount)
+        # go back to top of file
+        f.seek(0)
+        filereader = csv.DictReader(f, delimiter = d, quotechar = q)
+        # generate sorted random set of line numbers
+        random_linenos = sorted(random.sample(range(linecount), k), reverse = True)
+        # pop off a line
+        lineno = random_linenos.pop()
+        # work through each line and append to the output list if the line number is in the random set
+        for n, line in enumerate(filereader):
+            if n == lineno:
+                sample.append(line)
+                if len(random_linenos) > 0:
+                    lineno = random_linenos.pop()
+                else:
+                    break
+        print("--read " + str(len(sample)) + " random rows from " + str(len(sample[0])) + " columns in " + filename)
+        return sample
 
-# notify how many rows and columns we;ve got
-print("--read " + str(len(ls)) + " rows from " + str(len(ls[0])) + " columns in " + args.inputFile)
+# read in data within file
+def readfullfile(filename, d, q):
+    with open(filename, 'rU', encoding = 'utf-8-sig') as csvfile:
+        filereader = csv.DictReader(csvfile, delimiter = d, quotechar = q)
+        out = []
+        for row in filereader:
+            out.append(row)
+        print("--read " + str(len(out)) + " rows from " + str(len(out[0])) + " columns in " + filename)
+        return out
+
+# read in either full file or random 
+if args.maxrows is None:
+    ls = readfullfile(args.inputFile, args.delim, args.quotechar)
+else:
+    ls = randomsampler(args.inputFile, int(args.maxrows), args.delim, args.quotechar)
 
 # generate sql using ddlgenerator
-table = Table(ls, args.tablename) 
+#if args.primarykey is None:
+#    table = Table(ls, table_name = args.tablename) 
+#else:
+#    table = Table(ls, table_name = args.tablename, pk_name = args.primarykey)
+table = Table(ls, table_name = args.tablename) 
 sql = table.sql(args.dialect, inserts = args.addinserts)
 
 # write or print out the sql file
