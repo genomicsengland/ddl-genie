@@ -5,13 +5,21 @@ It is a wrapper for the `ddlgenerator` module but I had to make my own version o
 
 Things to bear in mind:
 
-* You still need to check the result ddl to check things make sense and column types guessed correctly;
+* You still need to check/edit the result ddl to:
+
+	* check column types guessed correctly;
+
+	* add in the schema where the table will go;
+
+* table names will be made 'dialect-safe' so what you specify won't necessarily be what you get;
 
 * Check the number of rows and columns read to check delimiters and quote characters read correctly;
 
 * If you're doing a random sample of rows (using `-r <number_rows>` flag) pay special attention to columns marked `NOT NULL` as it may be wrong if missing data is rare;
 
-* Similarly the lengths of `VARCHAR` may be wrong if you're only reading from a portion of the file.
+* Similarly the lengths of `VARCHAR` may be wrong if you're only reading from a portion of the file;
+
+* Probably the easiest way to 'force' data-types (e.g. `participant_id` will always be guessed as an integer when it is stored as string everywhere else) is to add a nonsense line to your input data with entries that will cause the guess to go your way (e.g. participant_id of `test` will cause it to come out as a varchar);
 
 ## Arguments
 
