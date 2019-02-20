@@ -103,7 +103,10 @@ else:
     f.close()
 
 # if log file is empty then can delete
-if os.stat(args.logfile).st_size == 0:
-    os.remove(args.logfile)
-else:
+if os.path.isfile(args.logfile) and os.stat(args.logfile).st_size != 0:
     print("**log file has content**")
+else:
+    try:
+        os.remove(args.logfile)
+    except:
+        None
