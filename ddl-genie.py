@@ -82,7 +82,13 @@ def readfullfile(filename, d, q):
             return out
         else:
             print("--no data to read in " + filename)
+            deleteemptyfile(args.logfile)
             exit()
+
+# delete empty file
+def deleteemptyfile(filename):
+    if os.path.isfile(filename) and os.stat(filename).st_size == 0:
+        os.remove(filename)
 
 # read in either full file or random 
 if args.maxrows is None:
@@ -107,10 +113,4 @@ else:
     f.close()
 
 # if log file is empty then can delete
-if os.path.isfile(args.logfile) and os.stat(args.logfile).st_size != 0:
-    print("**log file has content**")
-else:
-    try:
-        os.remove(args.logfile)
-    except:
-        None
+deleteemptyfile(args.logfile)
