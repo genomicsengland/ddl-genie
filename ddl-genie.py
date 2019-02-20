@@ -77,8 +77,12 @@ def readfullfile(filename, d, q):
         out = []
         for row in filereader:
             out.append(row)
-        print("--read " + str(len(out)) + " rows from " + str(len(out[0])) + " columns in " + filename)
-        return out
+        if len(out) > 0:
+            print("--read " + str(len(out)) + " rows from " + str(len(out[0])) + " columns in " + filename)
+            return out
+        else:
+            print("--no data to read in " + filename)
+            exit()
 
 # read in either full file or random 
 if args.maxrows is None:
