@@ -17,8 +17,6 @@ Things to bear in mind:
 
 * If you're doing a random sample of rows (using `-r <number_rows>` flag) pay special attention to columns marked `NOT NULL` as it may be wrong if missing data is rare;
 
-* Similarly the lengths of `VARCHAR` may be wrong if you're only reading from a portion of the file;
-
 * Probably the easiest way to 'force' data-types (e.g. `participant_id` will always be guessed as an integer when it is stored as string everywhere else) is to add a nonsense line to your input data with entries that will cause the guess to go your way (e.g. participant_id of `test` will cause it to come out as a varchar);
 
 ## Arguments
@@ -42,6 +40,8 @@ Usage: `python3 ddl-genie.py <inputFile>`
 `-g --logfile`: name of log file to write to (defaults to `inputFile` basename is not specified)
 
 `-r --maxrows`: number of rows to use for ddl generation (rows will be randomly selected from file)
+
+`-w --tableowner`: the name of the table owner. Specifying a table owner causes an `ALTER TABLE <tablename> OWNER to <tableowner>;` statement to be included into the DDL.
 
 ## Example
 
