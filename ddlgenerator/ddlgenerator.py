@@ -120,7 +120,7 @@ class Table(object):
                  varying_length_text=False, uniques=False,
                  pk_name=None, force_pk=False, data_size_cushion=0,
                  _parent_table=None, _fk_field_name=None, reorder=False,
-                 loglevel=logging.WARN, limit=None):
+                 loglevel=logging.WARN, limit=None, table_owner=None):
         """
         Initialize a Table and load its data.
 
@@ -138,6 +138,7 @@ class Table(object):
         logging.getLogger().setLevel(loglevel)
         self.varying_length_text = varying_length_text
         self.table_name = table_name
+        self.table_owner = table_owner
         self.data_size_cushion = data_size_cushion
         self._find_table_name(data)
         # Send anything but Python data objects to
@@ -274,6 +275,8 @@ class Table(object):
             result.append(self._dropper(dialect) + ';')
         if creates:
             result.append("%s;\n%s" % (creator, comments))
+            if self.table_owner:
+                result.append("ALTER TABLE %s OWNER TO %s;\n" % (self.table_name, self.table_owner))
         for child in self.children.values():
             result.append(child.ddl(dialect=dialect, creates=creates,
                           drops=drops))
@@ -453,15 +456,20 @@ class Table(object):
     def _fill_metadata_from_sample(self, col):
         col['pytype'] = type(col['sample_datum'])
         if isinstance(col['sample_datum'], Decimal):
-            (precision, scale) = th.precision_and_scale(col['sample_datum'])
-            col['satype'] = sa.DECIMAL(precision + self.data_size_cushion*2,
-                                       scale + self.data_size_cushion)
+            # replacing three following lines so that no attempt made to infer precision and scale
+            # unable to do correctly for e.g. 10.0
+            #(precision, scale) = th.precision_and_scale(col['sample_datum'])
+            #col['satype'] = sa.DECIMAL(precision + self.data_size_cushion*2,
+            #                            scale + self.data_size_cushion)
+            col['satype'] = sa.DECIMAL
         elif isinstance(col['sample_datum'], str):
             if self.varying_length_text:
                 col['satype'] = sa.Text()
             else:
                 str_len = max(len(col['sample_datum']), col['str_length'])
-                col['satype'] = sa.Unicode(str_len+self.data_size_cushion*2)
+                #changing below line to avoid specifying length of varchars
+                #col['satype'] = sa.Unicode(str_len+self.data_size_cushion*2)
+                col['satype'] = sa.Unicode()
         else:
             col['satype'] = self.types2sa[type(col['sample_datum'])]
             if col['satype'] == sa.Integer and (
