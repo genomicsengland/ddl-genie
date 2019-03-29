@@ -28,6 +28,7 @@ parser.add_argument('-l', '--dialect', default = 'postgresql', help = "database 
 parser.add_argument('-t', '--tablename', help = "name of the table to generate")
 parser.add_argument('-g', '--logfile', help = "name of log file to write to")
 parser.add_argument('-r', '--maxrows', help = "maximum number of (random) rows to use for ddl generation")
+parser.add_argument('-w', '--tableowner', help = "name of the table owner")
 #parser.add_argument('-k', '--primarykey', help = "column to make primary key")
 args = parser.parse_args()
 
@@ -101,7 +102,7 @@ else:
 #    table = Table(ls, table_name = args.tablename) 
 #else:
 #    table = Table(ls, table_name = args.tablename, pk_name = args.primarykey)
-table = Table(ls, table_name = args.tablename) 
+table = Table(ls, table_name = args.tablename, table_owner = args.tableowner) 
 sql = table.sql(args.dialect, inserts = args.addinserts)
 
 # write or print out the sql file
